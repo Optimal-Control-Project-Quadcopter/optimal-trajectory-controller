@@ -1,0 +1,55 @@
+% PID FOR SIMPLE UAV MODEL
+clear;
+clc;
+
+%% MODEL PARAMETERS AND CONSTANTS
+g  = 9.81;         % acceleration due to gravity
+m  = 2.353598;     % mass of the quadcopter in kg
+Ix = 0.1676;       % Moment of inertia along x in kgm^2
+Iy = 0.1676;       % Moment of inertia along y in kgm^2
+Iz = 0.29743;      % Moment of inertia along z in kgm^2
+d  = 0.4;          % length of quadcopter arm in m
+c  = 1;            % force to moment scaling factor 
+
+%% SYSTEM INITIALISATION
+ 
+% The states of the system are:
+% x = [φ θ ψ φ' θ' ψ']
+
+NumStates = 6; % Number of states
+NumCtrl   = 4; % Number of control inputs
+NumOut    = 3; % Number of outputs
+
+A = zeros(NumStates,NumStates);
+A(1,4) = 1;
+A(2,5) = 1;
+A(3,6) = 1;
+
+B = zeros(NumStates,NumCtrl);
+B(4,2) = d/Ix;
+B(4,4) = -d/Ix;
+B(5,1) = d/Iy;
+B(5,3) = -d/Iy;
+B(6,:) = [-c/Iz c/Iz -c/Iz c/Iz];
+
+C = zeros(NumOut,NumStates);
+C(1,1) = 1;
+C(2,2) = 1;
+C(3,3) = 1;
+
+D = zeros(NumOut,NumCtrl);
+
+sysC = ss(A,B,C,D); % State space representation
+
+% Ts = 1e-4;                  % Sampling time for discretisation
+% sysD = c2d(sysC,Ts,'zoh');  % Discrete state space representaiton
+
+% s = tf('s');
+% si_a = eye(NumStates,NumStates).*s - A
+
+[uav_tf_num_f1,uav_tf_den_f1] = ss2tf(A,B,C,D,1)
+[uav_tf_num_f2,uav_tf_den_f2] = ss2tf(A,B,C,D,2)
+[uav_tf_num_f3,uav_tf_den_f3] = ss2tf(A,B,C,D,3)
+[uav_tf_num_f4,uav_tf_den_f4] = ss2tf(A,B,C,D,4)
+
+% uav_tf = tf(uav_tf_num,uav_tf_den)
