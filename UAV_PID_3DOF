@@ -1,4 +1,12 @@
-% PID FOR SIMPLE UAV MODEL
+%% LQR FOR 3-DOF QUADCOPTER MODEL
+% This script presents the LQR control for a 3-DOF Quadcopter model. 
+% The observed outputs are the Roll, Pitch and Yaw angles. There are two
+% variations presented:
+% 1. The Roll and Pitch angles are varied as a step function and the Yaw
+% angle is kept a constant.
+% 2. All the angles are varied linearly from a starting value to a final
+% value.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clear;
 clc;
 
@@ -41,15 +49,135 @@ D = zeros(NumOut,NumCtrl);
 
 sysC = ss(A,B,C,D); % State space representation
 
-% Ts = 1e-4;                  % Sampling time for discretisation
-% sysD = c2d(sysC,Ts,'zoh');  % Discrete state space representaiton
+Ts = 1e-4;                  % Sampling time for discretisation
+sysD = c2d(sysC,Ts,'zoh');  % Discrete state space representaiton
 
-% s = tf('s');
-% si_a = eye(NumStates,NumStates).*s - A
+%% DESIRED TRAJECTORY
+N = 60;
+fs = 1;
+t = 0:1/fs:N-1/fs;
 
-[uav_tf_num_f1,uav_tf_den_f1] = ss2tf(A,B,C,D,1)
-[uav_tf_num_f2,uav_tf_den_f2] = ss2tf(A,B,C,D,2)
-[uav_tf_num_f3,uav_tf_den_f3] = ss2tf(A,B,C,D,3)
-[uav_tf_num_f4,uav_tf_den_f4] = ss2tf(A,B,C,D,4)
+% ----- Step function  -------
+Xd(1:length(t)/2,1) = 0.1;
+Xd(length(t)/2+1:length(t),1) = 2;
 
-% uav_tf = tf(uav_tf_num,uav_tf_den)
+Xd(1:length(t)/2,2) = 0.1;
+Xd(length(t)/2+1:length(t),2) = 1;
+
+Xd(1:length(t)/2,3) = 0.1;
+Xd(length(t)/2+1:length(t),3) = 0.1;
+
+Xd(1:length(t),4:6) = 0;
+
+% ------ Ramp Function --------mes
+% Xd(1:length(t)/3,1) = length(t)/3;
+% Xd(length(t)/3+1:2*length(t)/3,1) = t(length(t)/3+1:2*length(t)/3);
+% Xd(2*length(t)/3+1:length(t),1) = 2*length(t)/3;
+% 
+% Xd(1:length(t)/3,2) = length(t)/3;
+% Xd(length(t)/3+1:2*length(t)/3,2) = 2*t(length(t)/3+1:2*length(t)/3);
+% Xd(2*length(t)/3+1:length(t),2) = 4*length(t)/3;
+% 
+% Xd(1:length(t)/3,3) = length(t)/3;
+% Xd(length(t)/3+1:2*length(t)/3,3) = t(length(t)/3+1:2*length(t)/3);
+% Xd(2*length(t)/3+1:length(t),3) = length(t)/3;
+
+Xd(1:length(t),4:6) = 0;
+
+%% LQR ALGORITHM 
+
+% DEFINE LQR PARAMETERS AND FIND GAIN
+% alpha = 0.01;
+% Q = (1/alpha)*diag([max(A(1,:)), max(A(2,:)), max(A(3,:)), max(A(4,:)) ...
+%     max(A(5,:)), max(A(6,:))]);
+Q = 100*(eye(NumStates));
+R = 10;
+[Klqr,~,~] = lqr(sysD,Q,R);
+
+
+% SIMULATE THE CLOSED LOOP SYSTEM
+A_CL = A - B*Klqr;  
+B_CL = -A_CL;  
+C   = sysD.C;
+D   = 0;
+sys_CL = ss(A_CL,B_CL,C,D);
+
+CL_input = Xd';
+% x0 = Xd(1,:); % Initial condition
+x0 = randn(NumStates,1);
+
+% RUN THE SIMULATION
+[output_CL,time_CL,state_CL] = lsim(sys_CL,CL_input,t,x0); 
+
+%% ERROR ANALYSIS
+n = length(time_CL);  % Total number of samples
+
+% COMPUTE THE ERRORS
+E_roll = output_CL(:,1) - Xd(:,1);
+E_pitch = output_CL(:,2) - Xd(:,2);
+E_yaw = output_CL(:,3) - Xd(:,3);
+
+% COMPUTE THE MEAN SQUARED ERROR (MSE)
+MSE_roll = sum(E_roll.^2)/n;
+MSE_pitch = sum(E_pitch.^2)/n;
+MSE_yaw = sum(E_yaw.^2)/n;
+
+%% PLOTS
+
+figure(1)
+plot(time_CL,state_CL(:,1),'LineWidth',2,'LineStyle','--');
+hold on
+plot(time_CL,Xd(:,1),'LineWidth',2);
+title('Roll angle (\phi)','FontSize',24)
+xlabel('Time (s)','FontSize',24); ylabel('Amplitude (radians)','FontSize',24)
+legend('Estimated','Desired','Orientation','horizontal')
+ax = gca;
+ax.XGrid = 'on';
+ax.YGrid = 'on';
+ax.GridLineStyle = '--';
+ax.FontSize = 24;
+box on
+
+figure(2)
+plot(time_CL,state_CL(:,2),'LineWidth',2,'LineStyle','--');
+hold on
+plot(time_CL,Xd(:,2),'LineWidth',2);
+title('Pitch angle (\theta)','FontSize',24)
+xlabel('Time (s)','FontSize',24); ylabel('Amplitude (radians)','FontSize',24)
+legend('Estimated','Desired','Orientation','horizontal')
+ax = gca;
+ax.XGrid = 'on';
+ax.YGrid = 'on';
+ax.GridLineStyle = '--';
+ax.FontSize = 24;
+box on
+
+figure(3)
+plot(time_CL,state_CL(:,3),'LineWidth',2,'LineStyle','--');
+hold on
+plot(time_CL,Xd(:,3),'LineWidth',2);
+title('Yaw angle (\psi)','FontSize',24)
+xlabel('Time (s)','FontSize',24); ylabel('Amplitude (radians)','FontSize',24)
+legend('Estimated','Desired','Orientation','horizontal')
+ax = gca;
+ax.XGrid = 'on';
+ax.YGrid = 'on';
+ax.GridLineStyle = '--';
+ax.FontSize = 24;
+box on
+
+figure(4)
+plot(abs(E_roll),'LineWidth',2); hold on; plot(abs(E_pitch),'LineWidth',2); 
+hold on; plot(abs(E_yaw),'LineWidth',2)
+title('Absolute Error','FontSize',24)
+xlabel('Time (s)','FontSize',24); ylabel('Magnitude (radians)','FontSize',24)
+legend('Roll','Pitch','Yaw','Orientation','horizontal')
+ax = gca;
+ax.XGrid = 'on';
+ax.YGrid = 'on';
+ax.GridLineStyle = '--';
+ax.FontSize = 24;
+box on
+text(38,0.8, "MSE Roll = " + MSE_roll,'FontSize',24)
+text(38,0.6, "MSE Pitch = " + MSE_pitch,'FontSize',24)
+text(38,0.4, "MSE Yaw = " + MSE_yaw,'FontSize',24)
