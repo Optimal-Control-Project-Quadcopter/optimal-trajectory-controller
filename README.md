@@ -33,6 +33,10 @@
 
 	2. And extending the step response analysis to a set of waypoints, sampled from the 3D trajectory equation, at very small time instances to make the drone appear to track that trajectory. 
 
+> * Team Project Report - [EEE587-Project-Report](./EEE587-Project-Report.pdf)
+>
+> * Presentation - [Quadcopter Optimal Trajectory Control: A Comparative Study](https://onedrive.live.com/view.aspx?resid=6A66E77367076643!18125&ithint=file%2cpptx&authkey=!APm0nHRP8eKRLjM)
+
 ## References
 
 [1] Koenig, N., & Howard, A. (2004, September). Design and use paradigms for gazebo, an open-source multi-robot simulator. In 2004 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)(IEEE Cat. No. 04CH37566) (Vol. 3, pp. 2149-2154). IEEE.
