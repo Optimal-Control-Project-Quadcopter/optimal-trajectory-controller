@@ -1,7 +1,7 @@
 %% LQR-PI (OBSERVER) CONTROLLER FOR 3-DOF QUADCOPTER MODEL
 % This script presents the LQR-PI (observer) control for a 3-DOF Quadcopter model.
-% 1. The 6 states of the system are the 3 Euler angles φ θ ψ , and their corresponding 
-% anglular rates φ' θ' ψ'.
+% 1. The 6 states of the system are the 3 Euler angles [φ θ ψ] , and their corresponding 
+% anglular rates [φ' θ' ψ'].
 % 2. The observed outputs are the Roll φ, Pitch θ and Yaw  ψ angles.
 % 3. There are 4 inputs due to the 4 rotors of the Quadcopter. However, we 
 % consider 3 controller inputs, U1, U2, and U3 which are functions of the 4
