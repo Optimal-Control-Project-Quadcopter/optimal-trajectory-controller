@@ -5,7 +5,7 @@
 % 2. The observed outputs are the Roll φ, Pitch θ and Yaw  ψ angles.
 % 3. There are 4 inputs due to the 4 rotors of the Quadcopter. However, we 
 % consider 3 controller inputs, U1, U2, and U3 which are functions of the 4
-% rotor thrust forces F1-F4; U1 = F1-F4, U2 = F1-F3 & U3 = F2+F4-F1-F3 based on how 
+% rotor thrust forces U1 = F1-F4; U2 = F1-F4; U3 = F1-F3 & U4 = F2+F4-F1-F3 based on how 
 % they affect the states of the system  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
