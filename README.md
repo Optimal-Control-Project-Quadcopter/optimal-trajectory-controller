@@ -23,7 +23,12 @@
 	3. **Cascaded Controllers**
 		1. LQR-PI
 		2. LQR-PID
-  		3. Observer-based LQR 
+  		3. Observer-based LQR
+ 
+## Contributions 
+- Connor Reece: Simulink models for the algorithms and MALTAB code for PID
+- Vishal Gupta: ROS Gazebo implementations and set up
+- Kaushik Iyer: LQR (and variants) codes in MATLAB and Lyapunov analysis
 
 ## Results
 
