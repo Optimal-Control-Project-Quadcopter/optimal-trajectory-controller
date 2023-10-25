@@ -22,7 +22,8 @@
 
 	3. **Cascaded Controllers**
 		1. LQR-PI
-		2. LQR-PID 
+		2. LQR-PID
+  		3. Observer-based LQR 
 
 ## Results
 
